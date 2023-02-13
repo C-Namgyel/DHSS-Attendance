@@ -1,0 +1,8 @@
+@keyframes navOpen {
+    0% {right: -75%}
+    100% {right: 0%}
+}
+@keyframes navClose {
+    0% {right: 0%}
+    100% {right: -75%}
+}
