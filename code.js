@@ -63,6 +63,13 @@ function getCurrentTime() {
   return(hour+":"+minute+" "+ampm)
 }
 function message(placeHolder, enableSeconds, id) {
+  let barrier = document.createElement("div")
+  barrier.style.position = "fixed";
+  barrier.style.width = "100%"
+  barrier.style.height = "100%"
+  barrier.style.left = "0%";
+  barrier.style.top = "0%";
+  barrier.style.zIndex = "149"
   let div = document.createElement("div")
   div.style.width = "65%"
   div.style.position = "fixed"
@@ -74,8 +81,12 @@ function message(placeHolder, enableSeconds, id) {
   div.style.backgroundColor = "white"
   div.style.zIndex = "150"
   div.style.padding ="5%"
+  div.style.maxHeight = "50%"
+  div.style.overflow = "auto"
+  div.style.overflowWrap = "break-word"
+  div.style.scrollBehavior = "smooth"
   let label = document.createElement("label")
-  label.innerHTML = placeHolder,
+  label.innerHTML = placeHolder.replaceAll("\n", "<br>")
   label.style.display = "inline-block"
   label.style.width = "100%";
   let ok = document.createElement("button");
@@ -93,8 +104,8 @@ function message(placeHolder, enableSeconds, id) {
   div.appendChild(document.createElement("br"))
   div.appendChild(ok)
   document.body.appendChild(div)
+  document.body.appendChild(barrier)
   div.style.top = (((window.getComputedStyle(document.body).height).slice(0,this.length - 2) / 2) - (div.clientHeight / 2)) + "px"
-  document.getElementById("barrier2").hidden = false;
   if (enableSeconds < 0) {
       ok.hidden = true;
   } else if (enableSeconds == 0 || enableSeconds == undefined) {
@@ -115,7 +126,7 @@ function message(placeHolder, enableSeconds, id) {
   }
   ok.onclick = function() {
       div.remove()
-      document.getElementById("barrier2").hidden = true;
+      barrier.remove();
   }
 }
 function getNums(str, ind) {
@@ -158,9 +169,14 @@ function dayInWords() {
 //Version check
 readRecords("version", {}, function(records) {
   if (records[records.length - 1].version != "1.0") {
-    message("New update available. Update the app from <a href='"+records[records.length - 1].link+"' target='_blank'>here</a> to continue using the app. <br>Or open the latest version in browser with extra data usage from <a href='https://c-namgyel.github.io/DHSS-Attendance/'>here</a>", -1)
+    message("New update available. Update the app from <a href='"+records[records.length - 1].link+"' target='_blank'>here</a> to continue using the app. \nOr open the latest version in browser with extra data usage from <a href='https://c-namgyel.github.io/DHSS-Attendance/'>here</a>\n\n" + records[records.length - 1].new, -1)
   }
 });
+//list of all students
+var studentsList;
+readRecords("students", {}, function(records) {
+  studentsList = records;
+})
 //Menu
 document.getElementById("barrier").onclick = function() {
   document.getElementById("navClose").click();
@@ -193,11 +209,10 @@ document.getElementById("absenteeAdd").onclick = function() {
   absenteeNum += 1;
   let absenteeDiv = document.createElement("div")
   absenteeDiv.id = "absenteeDiv" + absenteeNum
-  let stdName = document.createElement("input")
+  let stdName = document.createElement("select")
   stdName.id = "absenteeName"+absenteeNum
   stdName.style.width = "45%"
   stdName.style.float = "left"
-  stdName.placeholder = "Name"
   let reason = document.createElement("input")
   reason.id = "absenteeReason"+absenteeNum
   reason.style.width = "45%"
@@ -233,6 +248,13 @@ document.getElementById("absenteeAdd").onclick = function() {
     reason.focus()
   }
   document.getElementById("absentee").scrollTop = document.getElementById("absentee").scrollHeight
+  let stdOptions = []
+  for (so = 0; so < studentsList.filter(character => character.class == document.getElementById("class").value && character.section == document.getElementById("section").value).length; so++) {
+    for (o = 0; o < JSON.parse(studentsList.filter(character => character.class == document.getElementById("class").value && character.section == document.getElementById("section").value)[so].students).length; o++) {
+      stdOptions.push(JSON.parse(studentsList.filter(character => character.class == document.getElementById("class").value && character.section == document.getElementById("section").value)[so].students)[o])
+    }
+  }
+  setOptions("absenteeName"+absenteeNum, stdOptions)
 }
 document.getElementById("class").oninput = function() {
   if (document.getElementById("class").value == "VII" || document.getElementById("class").value == "VIII") {
