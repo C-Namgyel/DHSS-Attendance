@@ -268,6 +268,10 @@ document.getElementById("class").oninput = function() {
 document.getElementById("submit").onclick = function() {
   let required = false;
   let elems = ["lesson", "initial"]
+  for (ar = 0; ar <= absenteeNum; ar++) {
+    elems.push("absenteeName"+ar)
+    elems.push("absenteeReason"+ar)
+  }
   for (let r = 0; r < elems.length; r++) {
     if ((document.getElementById(elems[r]).value).trim() == "") {
       required = true;
@@ -283,9 +287,6 @@ document.getElementById("submit").onclick = function() {
         name: document.getElementById("absenteeName"+aj).value,
         reason: document.getElementById("absenteeReason"+aj).value
       })
-    }
-    if (absenteeNum == -1) {
-      absenteeJSON = "No Absentee"
     }
     createRecord("attendance", {date:getFullDates(), time:getCurrentTime(), class:document.getElementById("class").value, section:document.getElementById("section").value, period:document.getElementById("period").value, subject:document.getElementById("subject").value, lesson:(document.getElementById("lesson").value), absentee: JSON.stringify(absenteeJSON), initial:document.getElementById("initial").value}, function(record) {
       document.getElementById("submit").innerHTML = "Submit"
